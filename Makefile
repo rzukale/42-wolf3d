@@ -11,45 +11,21 @@
 # **************************************************************************** #
 
 NAME = wolf3d
+NAME = wolf3d
 
 # src and obj files
-SRC = 	main.c \
-		init.c \
-		map.c \
-		raycast.c \
-		utils.c \
-		utils2.c \
-		utils3.c \
-		render.c \
-		color.c \
-		draw.c \
-		input.c \
-		malloc.c \
-		update.c \
-		color_utils.c \
-		crc.c \
-		filters.c \
-		header.c \
-		inflate_setups.c \
-		inflate_trees.c \
-		inflate_utils.c \
-		inflate_utils2.c \
-		inflate.c \
-		parser_utils.c \
-		parser_utils2.c \
-		parser.c \
-		texture.c \
-		unfilter.c
+SRC = 	main.c init.c map.c raycast.c utils.c utils2.c utils3.c render.c \
+		color.c draw.c input.c malloc.c update.c color_utils.c crc.c \
+		filters.c header.c inflate_setups.c inflate_trees.c inflate_utils.c \
+		inflate_utils2.c inflate.c parser_utils.c parser_utils2.c parser.c \
+		texture.c unfilter.c
 
+OBJDIR = ./objs/
 OBJ = $(addprefix $(OBJDIR),$(SRC:.c=.o))
 
-# SDL compiler & lib flags && installation stuff
-ABS_DIR = $(shell pwd)
-SDL_ORIG = $(ABS_DIR)/SDL2-2.0.14/
-SDL_NEW = $(ABS_DIR)/SDL2/
-SDL_INC = -I ./SDL2/include/SDL2/
-SDL_CFLAG = $(shell $(ABS_DIR)/SDL2/bin/sdl2-config --cflags)
-SDL_LIBS = $(shell $(ABS_DIR)/SDL2/bin/sdl2-config --libs)
+# Dynamic evaluation querying your newly installed system libraries
+SDL_CFLAG = $(shell pkg-config --cflags sdl2)
+SDL_LIBS = $(shell pkg-config --libs sdl2)
 
 # compiler
 CC = gcc
@@ -64,19 +40,8 @@ FT_LNK = -L ./libft -lft
 # sub-directories
 SCRDIR = ./srcs/
 INCDIR = ./includes/
-OBJDIR = ./objs/
 
-all: SDL obj $(FT_LIB) $(NAME)
-
-SDL:
-	@if [ ! -d "$(SDL_NEW)" ] ; then \
-	mkdir -p $(SDL_NEW) ; \
-	cd $(SDL_NEW) && \
-	$(SDL_ORIG)./configure --prefix=$(SDL_NEW) &&	\
-	make -j10 && make install ; \
-	else	\
-	make -j10 -C $(SDL_NEW) ; \
-	fi;
+all: obj $(FT_LIB) $(NAME)
 
 obj:
 	mkdir -p $(OBJDIR)
@@ -93,16 +58,12 @@ $(NAME): $(OBJ)
 clean:
 	rm -rf $(OBJDIR)
 	make -C $(FT) clean
-	@if [ -d "$(SDL_NEW)" ] ; then \
-	make -C $(SDL_NEW) clean ;	\
-	fi;
 
 fclean: clean
 	rm -f $(NAME)
 	make -C $(FT) fclean
-	rm -rf $(SDL_NEW)
 
 re: fclean all
 
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re obj
 .PRECIOUS: author
